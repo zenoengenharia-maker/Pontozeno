@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ZENO • Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{--navy:#1F2B75;--teal:#3B9D90;--teal-light:#4db8aa;--gray-50:#f8f9fb;--gray-100:#f0f2f7;--gray-200:#dde1ed;--gray-400:#9ba3be;--gray-600:#5a6282;--gray-800:#2d3456;--red:#e05252;--green:#27ae60;--radius:16px;--radius-sm:10px;--shadow-sm:0 2px 8px rgba(31,43,117,.08);--shadow-md:0 4px 20px rgba(31,43,117,.14);--shadow-lg:0 8px 40px rgba(31,43,117,.2)}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Poppins',sans-serif;background:var(--gray-50);min-height:100vh;color:var(--gray-800)}
+
+/* LOGIN */
+.login-screen{position:fixed;inset:0;background:var(--navy);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:500;padding:30px}
+.login-screen.hidden{display:none}
+.login-logo{text-align:center;margin-bottom:32px}
+.lhex{width:68px;height:68px;background:var(--teal);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:22px;margin:0 auto 12px}
+.login-logo strong{display:block;font-size:22px;font-weight:800;color:#fff;letter-spacing:2px}
+.login-logo span{font-size:10px;color:rgba(255,255,255,.5);letter-spacing:1px}
+.login-card{background:#fff;border-radius:20px;padding:26px 22px;width:100%;max-width:380px}
+.login-card h3{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:3px}
+.login-card p{font-size:11px;color:var(--gray-400);margin-bottom:20px}
+.lf{margin-bottom:13px}
+.lf label{display:block;font-size:10px;font-weight:600;color:var(--gray-600);margin-bottom:4px;text-transform:uppercase;letter-spacing:.8px}
+.lf input{width:100%;padding:12px 13px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-family:'Poppins',sans-serif;font-size:14px;color:var(--gray-800);background:var(--gray-50);outline:none;transition:border-color .2s}
+.lf input:focus{border-color:var(--teal);background:#fff}
+.lerr{background:rgba(224,82,82,.1);color:var(--red);font-size:12px;font-weight:600;padding:9px 12px;border-radius:8px;margin-bottom:12px;display:none}
+.btn-login{width:100%;padding:14px;background:var(--navy);color:#fff;border:none;border-radius:var(--radius-sm);font-family:'Poppins',sans-serif;font-size:14px;font-weight:700;cursor:pointer}
+
+/* HEADER */
+.header{background:var(--navy);padding:16px 16px 20px;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;right:-30px;top:-30px;width:140px;height:140px;border-radius:50%;background:rgba(59,157,144,.15)}
+.logo-row{display:flex;align-items:center;gap:10px;position:relative;z-index:1}
+.logo-hex{width:38px;height:38px;background:var(--teal);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:13px}
+.logo-text{color:#fff;flex:1}
+.logo-text strong{display:block;font-size:15px;font-weight:700;letter-spacing:1px}
+.logo-text span{font-size:9px;font-weight:300;opacity:.7}
+.btn-sair{background:rgba(255,255,255,.15);border:none;color:#fff;font-size:11px;font-weight:600;padding:6px 12px;border-radius:20px;cursor:pointer;font-family:'Poppins',sans-serif;white-space:nowrap}
+
+/* CONTENT */
+.content{padding:14px 14px 90px}
+.card{background:#fff;border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:var(--shadow-sm)}
+.card-title{font-size:10px;font-weight:600;color:var(--teal);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.card-title::before{content:'';width:3px;height:13px;background:var(--teal);border-radius:2px;display:block}
+
+.field{margin-bottom:11px}.field:last-child{margin-bottom:0}
+label{display:block;font-size:10px;font-weight:600;color:var(--gray-600);margin-bottom:4px;text-transform:uppercase;letter-spacing:.8px}
+input[type=text],input[type=tel],input[type=number],input[type=email],input[type=password],select{width:100%;padding:11px 13px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-family:'Poppins',sans-serif;font-size:14px;color:var(--gray-800);background:var(--gray-50);outline:none;transition:border-color .2s;-webkit-appearance:none}
+input:focus,select:focus{border-color:var(--teal);background:#fff}
+
+.btn-teal{width:100%;padding:13px;background:var(--teal);color:#fff;border:none;border-radius:var(--radius-sm);font-family:'Poppins',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px}
+.btn-navy{width:100%;padding:13px;background:var(--navy);color:#fff;border:none;border-radius:var(--radius-sm);font-family:'Poppins',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px}
+.btn-outline{width:100%;padding:11px;background:#fff;color:var(--navy);border:2px solid var(--navy);border-radius:var(--radius-sm);font-family:'Poppins',sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px}
+.btn-red{width:100%;padding:11px;background:#fff;color:var(--red);border:2px solid var(--red);border-radius:var(--radius-sm);font-family:'Poppins',sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+
+.spinner{width:16px;height:16px;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.stat-box{background:var(--gray-50);border-radius:var(--radius-sm);padding:14px 12px;text-align:center}
+.stat-val{font-size:26px;font-weight:800;color:var(--navy)}
+.stat-lab{font-size:9px;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:.6px;margin-top:2px}
+
+/* RESUMO */
+.res-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.res-box{background:var(--gray-50);border-radius:var(--radius-sm);padding:10px 8px;text-align:center}
+.res-val{font-size:17px;font-weight:800;color:var(--navy)}
+.res-lab{font-size:9px;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+
+/* FILTROS */
+.filtro-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+
+/* REGISTROS */
+.empty{text-align:center;padding:22px;color:var(--gray-400);font-size:12px}
+.empty .ei{font-size:28px;display:block;margin-bottom:6px}
+.reg-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--gray-100)}
+.reg-item:last-child{border-bottom:none}
+.reg-foto-ph{width:40px;height:40px;border-radius:8px;background:var(--gray-100);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.reg-info{flex:1;min-width:0}
+.reg-nome{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.reg-sub{font-size:10px;color:var(--gray-400);margin-top:1px}
+.reg-meta{text-align:right;flex-shrink:0}
+.reg-hora{font-size:14px;font-weight:700;color:var(--navy)}
+.reg-tag{font-size:9px;font-weight:700;text-transform:uppercase;padding:2px 6px;border-radius:20px;margin-top:2px;display:inline-block}
+.reg-tag.entrada{background:rgba(39,174,96,.12);color:var(--green)}
+.reg-tag.saida{background:rgba(224,82,82,.12);color:var(--red)}
+
+/* FUNCIONÁRIOS */
+.func-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--gray-100)}
+.func-item:last-child{border-bottom:none}
+.func-av{width:36px;height:36px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.func-info{flex:1;min-width:0}
+.func-nome{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.func-sub{font-size:10px;color:var(--gray-400);margin-top:1px}
+.func-del{background:none;border:none;color:var(--red);font-size:16px;cursor:pointer;padding:4px;flex-shrink:0}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--gray-100);display:flex;padding:6px 0 12px;box-shadow:0 -4px 20px rgba(31,43,117,.06);z-index:50}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:5px 0;border:none;background:none;font-family:'Poppins',sans-serif;color:var(--gray-400);font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;transition:color .2s}
+.nav-btn .ni{font-size:19px}
+.nav-btn.active{color:var(--navy)}
+
+.screen{display:none}.screen.active{display:block}
+
+.badge-admin{background:rgba(59,157,144,.12);color:var(--teal);font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:10px}
+
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--navy);color:#fff;padding:10px 18px;border-radius:50px;font-size:12px;font-weight:600;box-shadow:var(--shadow-lg);transition:transform .3s cubic-bezier(.34,1.56,.64,1);z-index:999;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.success{background:var(--green)}.toast.error{background:var(--red)}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="login-screen">
+  <div class="login-logo">
+    <div class="lhex">ZE</div>
+    <strong>ZENO</strong>
+    <span>ÁREA ADMINISTRATIVA</span>
+  </div>
+  <div class="login-card">
+    <h3>🔐 Acesso Admin</h3>
+    <p>Exclusivo para administradores ZENO Engenharia</p>
+    <div class="lerr" id="lerr"></div>
+    <div class="lf">
+      <label>E-mail</label>
+      <input type="email" id="l-email" value="zenoengenharia@gmail.com" autocomplete="email">
+    </div>
+    <div class="lf">
+      <label>Senha</label>
+      <input type="password" id="l-senha" placeholder="••••••" onkeydown="if(event.key==='Enter')login()">
+    </div>
+    <button class="btn-login" id="btn-login" onclick="login()">Entrar</button>
+  </div>
+</div>
+
+<!-- HEADER (pós login) -->
+<div class="header" id="main-header" style="display:none">
+  <div class="logo-row">
+    <div class="logo-hex">ZE</div>
+    <div class="logo-text">
+      <strong>ZENO</strong>
+      <span>PAINEL ADMINISTRATIVO</span>
+    </div>
+    <button class="btn-sair" onclick="logout()">Sair 🚪</button>
+  </div>
+</div>
+
+<div class="content" id="main-content" style="display:none">
+
+  <!-- ═══ TELA: DASHBOARD ═══ -->
+  <div class="screen active" id="screen-dash">
+    <div class="stats-grid">
+      <div class="stat-box"><div class="stat-val" id="st-funcs">—</div><div class="stat-lab">Funcionários</div></div>
+      <div class="stat-box"><div class="stat-val" id="st-regs">—</div><div class="stat-lab">Registros Hoje</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Exportar Planilha</div>
+      <button class="btn-teal" onclick="exportarExcel()">📊 Baixar Excel (.xlsx)</button>
+      <button class="btn-outline" onclick="exportarCSV()">📄 Baixar CSV</button>
+      <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--gray-100)">
+        <div class="filtro-row" style="margin-bottom:0">
+          <div class="field" style="margin-bottom:0">
+            <label>Filtrar Mês</label>
+            <select id="exp-mes"><option value="">Todos</option></select>
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label>Filtrar Obra</label>
+            <select id="exp-obra"><option value="">Todas</option></select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Acesso Rápido</div>
+      <button class="btn-navy" onclick="window.open('https://docs.google.com/spreadsheets','_blank')">🟢 Abrir Google Sheets ao Vivo</button>
+      <button class="btn-outline" onclick="navPara('registros');carregarRegistros()">📋 Ver Todos os Registros</button>
+      <button class="btn-outline" onclick="navPara('funcionarios');carregarFuncionarios()" style="margin-bottom:0">👷 Gerenciar Equipe</button>
+    </div>
+  </div>
+
+  <!-- ═══ TELA: REGISTROS ═══ -->
+  <div class="screen" id="screen-registros">
+    <div class="badge-admin">🔐 Registros — Admin</div>
+
+    <div class="card">
+      <div class="card-title">Filtros</div>
+      <div class="filtro-row">
+        <div class="field" style="margin-bottom:0">
+          <label>Mês</label>
+          <select id="filtro-mes" onchange="renderRegistros()"><option value="">Todos</option></select>
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <label>Obra</label>
+          <select id="filtro-obra" onchange="renderRegistros()"><option value="">Todas</option></select>
+        </div>
+      </div>
+      <div class="field" style="margin-top:8px;margin-bottom:0">
+        <label>Funcionário</label>
+        <input type="text" id="filtro-func" placeholder="Nome..." oninput="renderRegistros()">
+      </div>
+    </div>
+
+    <!-- Resumo -->
+    <div class="card" id="card-resumo" style="display:none">
+      <div class="card-title">Resumo</div>
+      <div class="res-grid">
+        <div class="res-box"><div class="res-val" id="res-dias">0</div><div class="res-lab">Dias</div></div>
+        <div class="res-box"><div class="res-val" id="res-horas">0h</div><div class="res-lab">Horas</div></div>
+        <div class="res-box"><div class="res-val" id="res-saldo">—</div><div class="res-lab">Saldo</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Registros (<span id="total-regs">0</span>) <button onclick="carregarRegistros()" style="margin-left:auto;background:none;border:none;font-size:11px;color:var(--teal);font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif">↻ Atualizar</button></div>
+      <div id="lista-regs"><div class="empty"><span class="ei">⏳</span>Carregando...</div></div>
+    </div>
+  </div>
+
+  <!-- ═══ TELA: FUNCIONÁRIOS ═══ -->
+  <div class="screen" id="screen-funcionarios">
+    <div class="badge-admin">🔐 Equipe — Admin</div>
+
+    <div class="card">
+      <div class="card-title">Adicionar Funcionário</div>
+      <div class="field"><label>Nome</label><input type="text" id="cad-nome" placeholder="Nome completo em maiúsculas"></div>
+      <div class="field"><label>CPF</label><input type="tel" id="cad-cpf" placeholder="000.000.000-00" maxlength="14"></div>
+      <div class="field">
+        <label>Obra Principal</label>
+        <select id="cad-obra"></select>
+      </div>
+      <div class="field"><label>Diária (R$)</label><input type="number" id="cad-diaria" placeholder="0.00" step="0.01"></div>
+      <button class="btn-teal" id="btn-add" onclick="adicionarFunc()" style="margin-top:4px">➕ Adicionar</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Equipe (<span id="total-funcs">0</span>) <button onclick="carregarFuncionarios()" style="margin-left:auto;background:none;border:none;font-size:11px;color:var(--teal);font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif">↻ Atualizar</button></div>
+      <div id="lista-funcs"><div class="empty"><span class="ei">👷</span>Carregando...</div></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav" id="main-nav" style="display:none">
+  <button class="nav-btn active" id="nav-dash" onclick="navPara('dash')">
+    <span class="ni">📊</span>Painel
+  </button>
+  <button class="nav-btn" id="nav-registros" onclick="navPara('registros');carregarRegistros()">
+    <span class="ni">📋</span>Registros
+  </button>
+  <button class="nav-btn" id="nav-funcionarios" onclick="navPara('funcionarios');carregarFuncionarios()">
+    <span class="ni">👷</span>Equipe
+  </button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbyyXSd14xXcP1eM9I51v-gQ6jhvikFeEH45CmSGf7084dKSM38nOu5wXxU9DgLN44gi/exec';
+const ADMIN_EMAIL = 'zenoengenharia@gmail.com';
+const ADMIN_SENHA = 'Adm123';
+const ADMIN_SENHA2 = 'adm123'; // aceita minúsculo também
+
+
+const OBRAS = ['Bela Vista','Mikonos','Erasmos','Imperial',"La Touche Residence","Ponta d'Areia",'Monte Parnasse','Interno'];
+const MESES_S = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+let funcionarios = [], registros = [];
+
+// ── INIT ──
+(function init(){
+  // Select obras
+  ['cad-obra','exp-obra','filtro-obra'].forEach(id => {
+    const sel = document.getElementById(id);
+    if(!sel) return;
+    OBRAS.forEach(o => {
+      const op = document.createElement('option');
+      op.value=o; op.textContent=o; sel.appendChild(op);
+    });
+  });
+})();
+
+function pad(n){ return String(n).padStart(2,'0'); }
+
+// ── API ──
+async function api(body){
+  try{
+    const r=await fetch(API_URL,{method:'POST',body:JSON.stringify(body)});
+    return await r.json();
+  }catch(e){return {ok:false,msg:'offline'};}
+}
+
+// ── LOGIN ──
+async function login(){
+  const emailDigitado = document.getElementById('l-email').value.trim();
+  const senhaDigitada = document.getElementById('l-senha').value.trim();
+  const err = document.getElementById('lerr');
+  err.style.display = 'none';
+
+  const emailOk = emailDigitado.toLowerCase() === 'zenoengenharia@gmail.com';
+  const senhaOk = senhaDigitada === 'Adm123' || senhaDigitada === 'adm123' || senhaDigitada === 'ADM123';
+
+  if(!emailOk || !senhaOk){
+    err.innerHTML = '❌ Verifique seu e-mail e senha.<br><small style="opacity:.8">E-mail: zenoengenharia@gmail.com<br>Senha: Adm123</small>';
+    err.style.display = 'block';
+    document.getElementById('l-senha').value = '';
+    document.getElementById('l-senha').focus();
+    return;
+  }
+
+  // Login ok — abre painel
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('main-header').style.display = 'block';
+  document.getElementById('main-content').style.display = 'block';
+  document.getElementById('main-nav').style.display = 'flex';
+
+  await carregarFuncionarios();
+  await carregarRegistros();
+  atualizarDash();
+}
+
+function logout(){
+  if(!confirm('Sair do painel?')) return;
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('main-header').style.display='none';
+  document.getElementById('main-content').style.display='none';
+  document.getElementById('main-nav').style.display='none';
+}
+
+// ── FUNCIONÁRIOS ──
+async function carregarFuncionarios(){
+  const res = await api({acao:'listarFuncionarios'});
+  if(res.ok && res.funcionarios) funcionarios=res.funcionarios;
+  renderFuncionarios();
+}
+
+function renderFuncionarios(){
+  const c=document.getElementById('lista-funcs');
+  document.getElementById('total-funcs').textContent=funcionarios.length;
+  if(!funcionarios.length){c.innerHTML='<div class="empty"><span class="ei">👷</span>Nenhum</div>';return;}
+  c.innerHTML=funcionarios.map(f=>{
+    const ini=f.nome.split(' ').slice(0,2).map(w=>w[0]).join('');
+    return`<div class="func-item">
+      <div class="func-av">${ini}</div>
+      <div class="func-info">
+        <div class="func-nome">${f.nome}</div>
+        <div class="func-sub">📍 ${f.obra} | R$ ${parseFloat(f.diaria||0).toFixed(2).replace('.',',')} /dia</div>
+      </div>
+      <button class="func-del" onclick="removerFunc(${f.id})">🗑️</button>
+    </div>`;
+  }).join('');
+}
+
+async function adicionarFunc(){
+  const nome  =document.getElementById('cad-nome').value.trim().toUpperCase();
+  const cpf   =document.getElementById('cad-cpf').value.trim();
+  const obra  =document.getElementById('cad-obra').value;
+  const diaria=parseFloat(document.getElementById('cad-diaria').value)||0;
+  if(!nome){toast('⚠️ Informe o nome','error');return;}
+  if(cpf.length<14){toast('⚠️ CPF inválido','error');return;}
+  const btn=document.getElementById('btn-add');
+  btn.innerHTML='<div class="spinner"></div>';
+  const res=await api({acao:'adicionarFunc',nome,cpf,obra,diaria});
+  btn.innerHTML='➕ Adicionar';
+  if(res.ok){toast('✅ Funcionário adicionado!','success');document.getElementById('cad-nome').value='';document.getElementById('cad-cpf').value='';document.getElementById('cad-diaria').value='';await carregarFuncionarios();}
+  else toast('❌ '+(res.msg||'Erro'),'error');
+}
+
+async function removerFunc(id){
+  if(!confirm('Remover?'))return;
+  const res=await api({acao:'removerFunc',id});
+  if(res.ok){toast('🗑️ Removido','');await carregarFuncionarios();}
+  else toast('❌ Erro ao remover','error');
+}
+
+document.getElementById('cad-cpf').addEventListener('input',function(){
+  let v=this.value.replace(/\D/g,'').slice(0,11);
+  if(v.length>9)v=v.replace(/^(\d{3})(\d{3})(\d{3})(\d{0,2}).*/,'$1.$2.$3-$4');
+  else if(v.length>6)v=v.replace(/^(\d{3})(\d{3})(\d{0,3}).*/,'$1.$2.$3');
+  else if(v.length>3)v=v.replace(/^(\d{3})(\d{0,3}).*/,'$1.$2');
+  this.value=v;
+});
+
+// ── REGISTROS ──
+async function carregarRegistros(){
+  document.getElementById('lista-regs').innerHTML='<div class="empty"><span class="ei">⏳</span>Carregando...</div>';
+  const res=await api({acao:'listarRegistros'});
+  if(res.ok) registros=res.registros||[];
+  else registros=[];
+  popularFiltroMeses();
+  renderRegistros();
+  atualizarDash();
+}
+
+function popularFiltroMeses(){
+  ['filtro-mes','exp-mes'].forEach(id=>{
+    const sel=document.getElementById(id);
+    if(!sel)return;
+    const meses=[...new Set(registros.map(r=>r.mesAno).filter(Boolean))].sort((a,b)=>{
+      const[ma,ya]=a.split('/');const[mb,yb]=b.split('/');
+      return new Date(yb,mb-1)-new Date(ya,ma-1);
+    });
+    const atual=sel.value;
+    sel.innerHTML='<option value="">Todos</option>';
+    meses.forEach(m=>{
+      const[mes,ano]=m.split('/');
+      const op=document.createElement('option');
+      op.value=m;op.textContent=`${MESES_S[parseInt(mes)-1].slice(0,3)}/${ano}`;
+      sel.appendChild(op);
+    });
+    if(atual)sel.value=atual;
+  });
+}
+
+function filtrarRegs(){
+  const mes  =document.getElementById('filtro-mes').value;
+  const obra =document.getElementById('filtro-obra').value;
+  const func =document.getElementById('filtro-func').value.toLowerCase();
+  return registros.filter(r=>{
+    if(mes  &&r.mesAno!==mes)return false;
+    if(obra &&r.obra!==obra)return false;
+    if(func &&!r.nome.toLowerCase().includes(func)&&!r.cpf.includes(func))return false;
+    return true;
+  });
+}
+
+function renderRegistros(){
+  const lista=filtrarRegs();
+  const c=document.getElementById('lista-regs');
+  document.getElementById('total-regs').textContent=lista.length;
+  if(!lista.length){c.innerHTML='<div class="empty"><span class="ei">📋</span>Nenhum registro</div>';document.getElementById('card-resumo').style.display='none';return;}
+  const resumo=calcResumo(lista);
+  document.getElementById('card-resumo').style.display='block';
+  document.getElementById('res-dias').textContent=resumo.dias;
+  document.getElementById('res-horas').textContent=resumo.horasStr;
+  document.getElementById('res-saldo').textContent=resumo.saldo;
+  c.innerHTML=lista.map(r=>`
+    <div class="reg-item">
+      <div class="reg-foto-ph">📷</div>
+      <div class="reg-info">
+        <div class="reg-nome">${r.nome}</div>
+        <div class="reg-sub">📍 ${r.obra} • ${r.data}</div>
+      </div>
+      <div class="reg-meta">
+        <div class="reg-hora">${r.hora}</div>
+        <span class="reg-tag ${(r.tipo||'').toLowerCase()}">${r.tipo==='ENTRADA'||r.tipo==='entrada'?'Entrada':'Saída'}</span>
+      </div>
+    </div>`).join('');
+}
+
+function calcResumo(lista){
+  const pd={};
+  lista.forEach(r=>{
+    const k=`${r.cpf}__${r.data}`;
+    if(!pd[k])pd[k]={E:[],S:[]};
+    const t=(r.tipo||'').toLowerCase();
+    if(t==='entrada')pd[k].E.push(r.hora); else pd[k].S.push(r.hora);
+  });
+  let totalMin=0;const dias=Object.keys(pd).length;
+  Object.values(pd).forEach(d=>{
+    if(!d.E.length||!d.S.length)return;
+    const ent=d.E.sort()[0];const sai=d.S.sort().pop();
+    const[eh,em]=ent.split(':').map(Number);const[sh,sm]=sai.split(':').map(Number);
+    let min=(sh*60+sm)-(eh*60+em);
+    if(eh<=12&&sh>=14)min-=120;
+    if(min>0)totalMin+=min;
+  });
+  const h=Math.floor(totalMin/60);const m=totalMin%60;
+  const esp=dias*6;const diff=h-esp;
+  return{dias,horasStr:m>0?`${h}h${m}m`:`${h}h`,saldo:diff>=0?`+${diff}h`:`${diff}h`};
+}
+
+function atualizarDash(){
+  document.getElementById('st-funcs').textContent=funcionarios.length||'—';
+  const hoje=`${pad(new Date().getDate())}/${pad(new Date().getMonth()+1)}/${new Date().getFullYear()}`;
+  const regsHoje=registros.filter(r=>r.data===hoje).length;
+  document.getElementById('st-regs').textContent=regsHoje;
+}
+
+// ── EXPORTAR EXCEL ──
+function exportarExcel(){
+  const mes  =document.getElementById('exp-mes').value;
+  const obra =document.getElementById('exp-obra').value;
+  let lista=registros.filter(r=>{
+    if(mes  &&r.mesAno!==mes)return false;
+    if(obra &&r.obra!==obra)return false;
+    return true;
+  });
+  if(!lista.length){toast('⚠️ Nenhum registro para exportar','error');return;}
+  const wb=XLSX.utils.book_new();
+
+  // ABA 1: Detalhado
+  const ws1=XLSX.utils.json_to_sheet(lista.map((r,i)=>({
+    'Nº':i+1,'Nome':r.nome,'CPF':r.cpf,'Obra':r.obra,
+    'Data':r.data,'Hora':r.hora,'Tipo':(r.tipo||'').toUpperCase(),
+    'Diária(R$)':r.diaria||0,'Mês/Ano':r.mesAno
+  })));
+  ws1['!cols']=[{wch:5},{wch:30},{wch:16},{wch:22},{wch:12},{wch:8},{wch:10},{wch:12},{wch:10}];
+  XLSX.utils.book_append_sheet(wb,ws1,'Registros Detalhados');
+
+  // ABA 2: Resumo por funcionário
+  const ag={};
+  lista.forEach(r=>{
+    const k=`${r.cpf}__${r.mesAno}`;
+    if(!ag[k])ag[k]={nome:r.nome,cpf:r.cpf,obra:r.obra,mesAno:r.mesAno,diaria:parseFloat(r.diaria||0),dias:{}};
+    if(!ag[k].dias[r.data])ag[k].dias[r.data]={E:[],S:[]};
+    const t=(r.tipo||'').toLowerCase();
+    if(t==='entrada')ag[k].dias[r.data].E.push(r.hora);else ag[k].dias[r.data].S.push(r.hora);
+  });
+  const rows2=[['Nome','CPF','Obra','Mês','Dias','Horas Totais','H.Esperadas','Saldo','Diária','Sal.Bruto','A Receber']];
+  Object.values(ag).forEach(f=>{
+    let totalMin=0;let dc=0;
+    const det=[];
+    Object.entries(f.dias).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([data,d])=>{
+      dc++;let md=0;
+      const ent=d.E.length?d.E.sort()[0]:'—';
+      const sai=d.S.length?d.S.sort().pop():'—';
+      if(d.E.length&&d.S.length){
+        const[eh,em]=ent.split(':').map(Number);const[sh,sm]=sai.split(':').map(Number);
+        md=(sh*60+sm)-(eh*60+em);if(eh<=12&&sh>=14)md-=120;if(md<0)md=0;totalMin+=md;
+      }
+      const hd=Math.floor(md/60);const mmd=md%60;
+      det.push([`  ↳ ${data}`,'','','','',`E:${ent} / S:${sai}`,'','',md>0?`${hd}h${mmd>0?mmd+'m':''}`:'—','','']);
+    });
+    const ht=Math.floor(totalMin/60);const mt=totalMin%60;
+    const esp=dc*6;const diff=ht-esp;const sal=f.diaria*dc;
+    rows2.push([f.nome,f.cpf,f.obra,f.mesAno,dc,mt>0?`${ht}h${mt}m`:`${ht}h`,`${esp}h`,diff>=0?`+${diff}h`:`${diff}h`,`R$ ${f.diaria.toFixed(2)}`,`R$ ${sal.toFixed(2)}`,`R$ ${sal.toFixed(2)}`]);
+    det.forEach(d=>rows2.push(d));
+    rows2.push(['','','','','','','','','','','']);
+  });
+  const ws2=XLSX.utils.aoa_to_sheet(rows2);
+  ws2['!cols']=[{wch:30},{wch:16},{wch:22},{wch:10},{wch:8},{wch:12},{wch:12},{wch:10},{wch:12},{wch:14},{wch:14}];
+  XLSX.utils.book_append_sheet(wb,ws2,'Resumo por Funcionário');
+
+  const nomeMes=(mes||'todos').replace('/','_');
+  const nomeObra=(obra||'todas').replace(/[\s']/g,'_');
+  XLSX.writeFile(wb,`ZENO_Ponto_${nomeMes}_${nomeObra}.xlsx`);
+  toast('📊 Planilha gerada!','success');
+}
+
+function exportarCSV(){
+  const mes=document.getElementById('exp-mes').value;
+  const obra=document.getElementById('exp-obra').value;
+  let lista=registros.filter(r=>{
+    if(mes&&r.mesAno!==mes)return false;
+    if(obra&&r.obra!==obra)return false;
+    return true;
+  });
+  if(!lista.length){toast('⚠️ Nenhum registro','error');return;}
+  const header=['Nome','CPF','Obra','Data','Hora','Tipo','Mês/Ano','Diária'];
+  const rows=lista.map(r=>[r.nome,r.cpf,r.obra,r.data,r.hora,(r.tipo||'').toUpperCase(),r.mesAno,r.diaria||'']);
+  const csv=[header,...rows].map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ZENO_Ponto.csv';a.click();
+  toast('📄 CSV exportado!','success');
+}
+
+// ── NAV ──
+function navPara(tela){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(`screen-${tela}`).classList.add('active');
+  document.getElementById(`nav-${tela}`).classList.add('active');
+}
+
+// ── TOAST ──
+function toast(msg,tipo=''){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.className=`toast ${tipo} show`;
+  setTimeout(()=>el.classList.remove('show'),3200);
+}
+</script>
+</body>
+</html>
