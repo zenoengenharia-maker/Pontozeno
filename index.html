@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ZENO • Ponto Digital</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#1F2B75;--teal:#3B9D90;--teal-light:#4db8aa;--gray-50:#f8f9fb;--gray-100:#f0f2f7;--gray-200:#dde1ed;--gray-400:#9ba3be;--gray-600:#5a6282;--gray-800:#2d3456;--red:#e05252;--green:#27ae60;--orange:#e67e22;--purple:#8e44ad;--radius:16px;--radius-sm:10px;--shadow-sm:0 2px 8px rgba(31,43,117,.08);--shadow-md:0 4px 20px rgba(31,43,117,.14);--shadow-lg:0 8px 40px rgba(31,43,117,.2)}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Poppins',sans-serif;background:var(--gray-50);min-height:100vh;color:var(--gray-800)}
+
+.header{background:var(--navy);padding:18px 18px 22px;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;right:-30px;top:-30px;width:150px;height:150px;border-radius:50%;background:rgba(59,157,144,.18)}
+.logo-row{display:flex;align-items:center;gap:12px;position:relative;z-index:1}
+.logo-hex{width:42px;height:42px;background:var(--teal);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:15px}
+.logo-text{color:#fff}.logo-text strong{display:block;font-size:17px;font-weight:700;letter-spacing:1px}
+.logo-text span{font-size:9px;font-weight:300;opacity:.7;letter-spacing:.5px}
+.header-info{position:relative;z-index:1;margin-top:12px;display:flex;justify-content:space-between;align-items:flex-end}
+.header-date{color:rgba(255,255,255,.8);font-size:12px}
+.header-date strong{font-size:18px;font-weight:700;color:#fff;display:block}
+.live-clock{background:rgba(255,255,255,.12);border-radius:8px;padding:6px 12px;display:flex;align-items:center;gap:8px}
+.clock-dot{width:7px;height:7px;border-radius:50%;background:var(--teal-light);animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.clock-time{font-size:20px;font-weight:700;color:#fff;letter-spacing:1px}
+
+.content{padding:14px 14px 30px}
+.card{background:#fff;border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:var(--shadow-sm)}
+.card-title{font-size:10px;font-weight:600;color:var(--teal);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.card-title::before{content:'';width:3px;height:13px;background:var(--teal);border-radius:2px;display:block}
+
+.field{margin-bottom:11px}.field:last-child{margin-bottom:0}
+label{display:block;font-size:10px;font-weight:600;color:var(--gray-600);margin-bottom:4px;text-transform:uppercase;letter-spacing:.8px}
+input[type=text]{width:100%;padding:12px 13px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-family:'Poppins',sans-serif;font-size:14px;color:var(--gray-800);background:var(--gray-50);outline:none;transition:border-color .2s}
+input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(59,157,144,.1);background:#fff}
+
+.search-wrap{position:relative}
+.dropdown{position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);box-shadow:var(--shadow-md);z-index:200;max-height:260px;overflow-y:auto;display:none}
+.dropdown.open{display:block}
+.dd-item{padding:13px 14px;font-size:13px;cursor:pointer;border-bottom:1px solid var(--gray-100);display:flex;align-items:center;gap:10px}
+.dd-item:last-child{border-bottom:none}
+.dd-item:active{background:var(--gray-50)}
+.dd-av{width:34px;height:34px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.dd-nome{font-weight:600;color:var(--gray-800);font-size:13px}
+.dd-sub{font-size:10px;color:var(--gray-400);margin-top:1px}
+
+.func-badge{background:var(--navy);border-radius:var(--radius-sm);padding:14px;color:#fff;display:none;margin-top:6px}
+.fb-row{display:flex;align-items:center;gap:12px}
+.fb-av{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+.fb-info{flex:1}
+.fb-nome{font-weight:700;font-size:14px}
+.fb-sub{font-size:10px;opacity:.7;margin-top:2px}
+.fb-clear{background:rgba(255,255,255,.2);border:none;color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* OBRA CHIPS */
+.obra-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.obra-chip{padding:11px 8px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);text-align:center;font-size:11px;font-weight:600;color:var(--gray-600);cursor:pointer;transition:all .18s;background:var(--gray-50);user-select:none}
+.obra-chip.selected{border-color:var(--navy);background:var(--navy);color:#fff}
+
+/* TIPOS DE PONTO */
+.tipo-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tipo-btn{padding:14px 8px;border:2px solid var(--gray-200);border-radius:var(--radius-sm);text-align:center;font-size:12px;font-weight:700;cursor:pointer;transition:all .18s;background:#fff;color:var(--gray-400);user-select:none;position:relative}
+.tipo-btn .ti{font-size:24px;display:block;margin-bottom:4px}
+.tipo-btn.t-entrada  {--c:#27ae60}
+.tipo-btn.t-almoco   {--c:#e67e22}
+.tipo-btn.t-volta    {--c:#8e44ad}
+.tipo-btn.t-saida    {--c:#e05252}
+.tipo-btn.disponivel {border-color:var(--c);color:var(--c);background:rgba(var(--cr),.06)}
+.tipo-btn.selected   {border-color:var(--c);background:var(--c);color:#fff}
+.tipo-btn.feito      {border-color:var(--gray-200);background:var(--gray-100);color:var(--gray-400);cursor:default}
+.tipo-btn.bloqueado  {border-color:var(--gray-100);background:var(--gray-50);color:var(--gray-200);cursor:not-allowed;opacity:.5}
+.tipo-btn .check{position:absolute;top:6px;right:8px;font-size:14px}
+.tipo-btn .hora-reg{font-size:9px;font-weight:600;margin-top:2px;display:block}
+
+/* FOTO */
+.foto-area{border:2px dashed var(--gray-200);border-radius:var(--radius-sm);min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;position:relative;background:var(--gray-50)}
+.foto-area img{width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0}
+.foto-ph{text-align:center;color:var(--gray-400);padding:20px;position:relative;z-index:1}
+.foto-ph .fi{font-size:34px;margin-bottom:6px;display:block}
+.foto-ph p{font-size:12px;font-weight:500}
+#cam-input{display:none}
+.foto-ov{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.78));padding:14px 12px 8px;color:#fff;font-size:11px;font-weight:600;z-index:2;display:none}
+.foto-ov.visible{display:block}
+
+.btn-primary{width:100%;padding:16px;background:var(--navy);color:#fff;border:none;border-radius:var(--radius);font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 6px 24px rgba(31,43,117,.28);display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px;transition:all .2s}
+.btn-primary:active{transform:scale(.98)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+.spinner{width:16px;height:16px;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* STATUS */
+.status-bar{display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:8px;font-size:11px;font-weight:600;margin-bottom:12px}
+.status-bar.online{background:rgba(39,174,96,.1);color:var(--green)}
+.status-bar.offline{background:rgba(243,156,18,.1);color:#e67e22}
+.status-dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0}
+
+/* PROGRESSO DO DIA */
+.progresso{display:flex;align-items:center;justify-content:space-between;padding:14px;background:var(--gray-50);border-radius:var(--radius-sm);margin-bottom:4px}
+.prog-step{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
+.prog-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;border:2px solid var(--gray-200);background:#fff}
+.prog-icon.feito{background:var(--green);border-color:var(--green)}
+.prog-icon.ativo{background:var(--navy);border-color:var(--navy);animation:pulse-ring 1.5s infinite}
+@keyframes pulse-ring{0%,100%{box-shadow:0 0 0 0 rgba(31,43,117,.3)}50%{box-shadow:0 0 0 6px rgba(31,43,117,0)}}
+.prog-label{font-size:9px;font-weight:600;color:var(--gray-400);text-align:center}
+.prog-hora{font-size:9px;font-weight:700;color:var(--green)}
+.prog-line{flex:1;height:2px;background:var(--gray-200);margin:0 4px;margin-bottom:18px}
+.prog-line.feito{background:var(--green)}
+
+/* CONFIRMAÇÃO */
+.confirm-card{border-radius:var(--radius);padding:24px;margin-bottom:12px;color:#fff;text-align:center;display:none}
+.confirm-card.entrada {background:linear-gradient(135deg,#1a7a3c,#27ae60)}
+.confirm-card.almoco  {background:linear-gradient(135deg,#b7590a,#e67e22)}
+.confirm-card.volta   {background:linear-gradient(135deg,#6c3483,#8e44ad)}
+.confirm-card.saida   {background:linear-gradient(135deg,#922b21,#e05252)}
+.cc-icon{font-size:52px;display:block;margin-bottom:10px}
+.cc-nome{font-size:17px;font-weight:700;margin-bottom:4px}
+.cc-info{font-size:12px;opacity:.8;margin-bottom:12px}
+.cc-hora{font-size:40px;font-weight:800;letter-spacing:2px}
+.cc-tipo{font-size:12px;font-weight:600;opacity:.85;margin-top:4px}
+.btn-novo{width:100%;padding:13px;background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.4);border-radius:var(--radius-sm);color:#fff;font-family:'Poppins',sans-serif;font-size:13px;font-weight:700;cursor:pointer;margin-top:14px}
+
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--navy);color:#fff;padding:11px 20px;border-radius:50px;font-size:12px;font-weight:600;box-shadow:var(--shadow-lg);transition:transform .3s cubic-bezier(.34,1.56,.64,1);z-index:999;white-space:nowrap;max-width:90vw;text-align:center}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.success{background:var(--green)}.toast.error{background:var(--red)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo-row">
+    <div class="logo-hex">ZE</div>
+    <div class="logo-text">
+      <strong>ZENO</strong>
+      <span>ENGENHARIA • PONTO DIGITAL</span>
+    </div>
+  </div>
+  <div class="header-info">
+    <div class="header-date">
+      <span id="data-extenso"></span>
+      <strong id="data-curta"></strong>
+    </div>
+    <div class="live-clock">
+      <div class="clock-dot"></div>
+      <span class="clock-time" id="relogio">00:00:00</span>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+
+  <div class="status-bar" id="status-bar" style="display:none">
+    <div class="status-dot"></div>
+    <span id="status-txt"></span>
+  </div>
+
+  <!-- CONFIRMAÇÃO -->
+  <div class="confirm-card" id="confirm-card">
+    <span class="cc-icon" id="cc-icon">✅</span>
+    <div class="cc-nome" id="cc-nome"></div>
+    <div class="cc-info" id="cc-info"></div>
+    <div class="cc-hora" id="cc-hora"></div>
+    <div class="cc-tipo" id="cc-tipo"></div>
+    <button class="btn-novo" onclick="novoRegistro()">➕ Registrar Próximo</button>
+  </div>
+
+  <!-- FORMULÁRIO -->
+  <div id="form-ponto">
+
+    <!-- Funcionário -->
+    <div class="card">
+      <div class="card-title">Funcionário</div>
+      <div class="field">
+        <label>Buscar seu nome</label>
+        <div class="search-wrap" id="search-wrap">
+          <input type="text" id="busca-func" placeholder="Digite seu nome aqui..." autocomplete="off"
+            oninput="buscarFunc(this.value)" onfocus="buscarFunc(this.value)">
+          <div class="dropdown" id="dd-func"></div>
+        </div>
+        <div class="func-badge" id="func-badge">
+          <div class="fb-row">
+            <div class="fb-av" id="fb-av"></div>
+            <div class="fb-info">
+              <div class="fb-nome" id="fb-nome"></div>
+              <div class="fb-sub" id="fb-sub"></div>
+            </div>
+            <button class="fb-clear" onclick="limparFunc()">×</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progresso do dia -->
+    <div class="card" id="card-progresso" style="display:none">
+      <div class="card-title">Progresso do Dia</div>
+      <div class="progresso">
+        <div class="prog-step">
+          <div class="prog-icon" id="prog-0">🟢</div>
+          <div class="prog-label">Entrada</div>
+          <div class="prog-hora" id="phora-0"></div>
+        </div>
+        <div class="prog-line" id="pline-0"></div>
+        <div class="prog-step">
+          <div class="prog-icon" id="prog-1">🍽️</div>
+          <div class="prog-label">Almoço</div>
+          <div class="prog-hora" id="phora-1"></div>
+        </div>
+        <div class="prog-line" id="pline-1"></div>
+        <div class="prog-step">
+          <div class="prog-icon" id="prog-2">🔄</div>
+          <div class="prog-label">Volta</div>
+          <div class="prog-hora" id="phora-2"></div>
+        </div>
+        <div class="prog-line" id="pline-2"></div>
+        <div class="prog-step">
+          <div class="prog-icon" id="prog-3">🔴</div>
+          <div class="prog-label">Saída</div>
+          <div class="prog-hora" id="phora-3"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Obra -->
+    <div class="card">
+      <div class="card-title">Obra</div>
+      <div class="obra-grid" id="obra-chips"></div>
+    </div>
+
+    <!-- Tipo de registro -->
+    <div class="card">
+      <div class="card-title">Tipo de Registro</div>
+      <div class="tipo-grid" id="tipo-grid">
+        <div class="tipo-btn t-entrada bloqueado" data-tipo="entrada" onclick="selTipo(this)">
+          <span class="ti">🟢</span>Entrada<span class="check" id="chk-entrada"></span>
+          <span class="hora-reg" id="hreg-entrada"></span>
+        </div>
+        <div class="tipo-btn t-almoco bloqueado" data-tipo="almoco" onclick="selTipo(this)">
+          <span class="ti">🍽️</span>Almoço<span class="check" id="chk-almoco"></span>
+          <span class="hora-reg" id="hreg-almoco"></span>
+        </div>
+        <div class="tipo-btn t-volta bloqueado" data-tipo="volta" onclick="selTipo(this)">
+          <span class="ti">🔄</span>Volta<span class="check" id="chk-volta"></span>
+          <span class="hora-reg" id="hreg-volta"></span>
+        </div>
+        <div class="tipo-btn t-saida bloqueado" data-tipo="saida" onclick="selTipo(this)">
+          <span class="ti">🔴</span>Saída<span class="check" id="chk-saida"></span>
+          <span class="hora-reg" id="hreg-saida"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Foto -->
+    <div class="card">
+      <div class="card-title">Foto da Obra</div>
+      <div class="foto-area" onclick="abrirCam()">
+        <div class="foto-ph" id="foto-ph">
+          <span class="fi">📸</span>
+          <p>Toque para fotografar</p>
+        </div>
+        <img id="foto-prev" src="" alt="" style="display:none">
+        <div class="foto-ov" id="foto-ov"></div>
+      </div>
+      <input type="file" id="cam-input" accept="image/*" capture="environment" onchange="processarFoto(this)">
+      <div id="foto-retake" style="display:none;margin-top:6px">
+        <button onclick="abrirCam()" style="width:100%;padding:9px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);background:#fff;font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;color:var(--gray-600);cursor:pointer">📷 Nova foto</button>
+      </div>
+    </div>
+
+    <button class="btn-primary" id="btn-registrar" onclick="registrarPonto()">
+      ✅ Registrar Ponto
+    </button>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbyyXSd14xXcP1eM9I51v-gQ6jhvikFeEH45CmSGf7084dKSM38nOu5wXxU9DgLN44gi/exec';
+
+const OBRAS = ['Bela Vista','Mikonos','Erasmos','Imperial',"La Touche Residence","Ponta d'Areia",'Monte Parnasse','Interno'];
+
+const TIPOS_INFO = {
+  entrada: {label:'ENTRADA',   emoji:'🟢', cor:'entrada'},
+  almoco:  {label:'ALMOÇO',    emoji:'🍽️', cor:'almoco'},
+  volta:   {label:'VOLTA',     emoji:'🔄', cor:'volta'},
+  saida:   {label:'SAÍDA FINAL',emoji:'🔴', cor:'saida'}
+};
+
+// Estado
+let funcionarios = [];
+let funcSel  = null;
+let obraSel  = null;
+let tipoSel  = null;
+let fotoCapt = null;
+let pontosHoje = {}; // {entrada:'08:01', almoco:'12:03', volta:'14:02', saida:null}
+
+const FUNCS_KEY = 'zeno_funcs_v4';
+const PONTOS_KEY = 'zeno_pontos_hoje';
+
+const DIAS_S  = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
+const MESES_S = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+function pad(n){ return String(n).padStart(2,'0'); }
+function hoje(){ const n=new Date(); return `${pad(n.getDate())}/${pad(n.getMonth()+1)}/${n.getFullYear()}`; }
+
+// ── INIT ──
+(async function init(){
+  const grid = document.getElementById('obra-chips');
+  OBRAS.forEach(o => {
+    const d = document.createElement('div');
+    d.className='obra-chip'; d.dataset.obra=o; d.textContent=o;
+    d.onclick=function(){ selObra(this); };
+    grid.appendChild(d);
+  });
+
+  atualizarRelogio();
+  setInterval(atualizarRelogio, 1000);
+
+  document.addEventListener('click', e => {
+    if (!document.getElementById('search-wrap').contains(e.target))
+      document.getElementById('dd-func').classList.remove('open');
+  });
+
+  await carregarFuncionarios();
+})();
+
+function atualizarRelogio(){
+  const n=new Date();
+  document.getElementById('relogio').textContent=`${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
+  document.getElementById('data-extenso').textContent=`${DIAS_S[n.getDay()]}, ${n.getDate()} de ${MESES_S[n.getMonth()]}`;
+  document.getElementById('data-curta').textContent=`${pad(n.getDate())}/${pad(n.getMonth()+1)}/${n.getFullYear()}`;
+}
+
+// ── API ──
+async function api(body){
+  try{
+    const r = await fetch(API_URL, {method:'POST', body:JSON.stringify(body)});
+    return await r.json();
+  }catch(e){ return {ok:false, msg:'offline'}; }
+}
+
+function setStatus(online){
+  const bar = document.getElementById('status-bar');
+  if(online){
+    bar.style.display = 'none'; // Online: não mostra nada
+  } else {
+    bar.style.display = 'flex';
+    bar.className = 'status-bar offline';
+    document.getElementById('status-txt').textContent = '⚠️ Sem internet — registro salvo no celular';
+    setTimeout(() => { bar.style.display = 'none'; }, 4000); // Some após 4 segundos
+  }
+}
+
+// ── CARREGAR FUNCIONÁRIOS ──
+async function carregarFuncionarios(){
+  // Tenta do servidor
+  const res = await api({acao:'listarFuncionarios'});
+  if(res.ok && res.funcionarios && res.funcionarios.length > 0){
+    funcionarios = res.funcionarios;
+    localStorage.setItem(FUNCS_KEY, JSON.stringify(funcionarios));
+    setStatus(true);
+  } else {
+    // Usa cache local
+    const saved = localStorage.getItem(FUNCS_KEY);
+    if(saved){
+      funcionarios = JSON.parse(saved);
+      setStatus(false);
+    } else {
+      // Fallback hardcoded
+      funcionarios = [
+        {id:1, nome:'DORILEIA PIEDADE RODRIGUES',           cpf:'000.000.000-01', obra:'Interno',              diaria:81.05},
+        {id:2, nome:'RAUL DE JESUS COSTA',                  cpf:'000.000.000-02', obra:'Interno',             diaria:150.00},
+        {id:3, nome:'UBIRATAN BRAGA ROCHA',                 cpf:'000.000.000-03', obra:'Bela Vista',          diaria:105.73},
+        {id:4, nome:'EURICO COSTA DUARTE',                  cpf:'000.000.000-04', obra:'La Touche Residence',  diaria:105.73},
+        {id:5, nome:'JOANDERSON MENDES',                    cpf:'000.000.000-05', obra:'Bela Vista',          diaria:105.73},
+        {id:6, nome:'CARLOS CESAR ROQUE DE LIMA',           cpf:'000.000.000-06', obra:'Monte Parnasse',      diaria:105.73},
+        {id:7, nome:'JARDIELSON PEREIRA SANTOS',            cpf:'000.000.000-07', obra:'Mikonos',              diaria:89.45},
+        {id:8, nome:'DHEIDSON ROBERTO DOS SANTOS',          cpf:'000.000.000-08', obra:'Mikonos',             diaria:134.25},
+        {id:9, nome:'ALAN QUINDERE SANTOS',                 cpf:'000.000.000-09', obra:'Mikonos',              diaria:89.45},
+        {id:10,nome:'GEOVANE ALEXANDRE RODRIGUES RIBEIRO',  cpf:'000.000.000-10', obra:'Mikonos',              diaria:89.45},
+        {id:11,nome:'JOILSON FERREIRA SALES',               cpf:'000.000.000-11', obra:'Mikonos',              diaria:89.45},
+        {id:12,nome:'VALDECI MELO MORAES',                  cpf:'000.000.000-12', obra:"Ponta d'Areia",       diaria:89.45},
+        {id:13,nome:'JHON KEWIN OLIVEIRA DE ALMEIDA',       cpf:'000.000.000-13', obra:'La Touche Residence',  diaria:89.45},
+        {id:14,nome:'CLAUDIO ALBERTO LIMA PINTO',           cpf:'000.000.000-14', obra:"Ponta d'Areia",      diaria:175.00},
+        {id:15,nome:'VALCLETTON SILVA REIS',                cpf:'000.000.000-15', obra:"Ponta d'Areia",       diaria:89.45},
+        {id:16,nome:'JOSÉ REINALDO CORREIA',                cpf:'000.000.000-16', obra:'Monte Parnasse',     diaria:107.23},
+        {id:17,nome:'ADRIANO DOS REIS BONTONTUINTES',       cpf:'000.000.000-17', obra:"Ponta d'Areia",       diaria:89.45},
+        {id:18,nome:'MATHEUS SIDNEY COSTA AZEVEDO',         cpf:'000.000.000-18', obra:'Monte Parnasse',      diaria:89.45},
+        {id:19,nome:'PAULO CESAR',                          cpf:'000.000.000-19', obra:'Bela Vista',          diaria:89.45}
+      ];
+      localStorage.setItem(FUNCS_KEY, JSON.stringify(funcionarios));
+      setStatus(false);
+    }
+  }
+}
+
+// ── BUSCA ──
+function buscarFunc(q){
+  const dd = document.getElementById('dd-func');
+  const term = (q||'').trim().toLowerCase();
+  if(!term){ dd.classList.remove('open'); return; }
+
+  const r = funcionarios.filter(f =>
+    f.nome.toLowerCase().includes(term)
+  ).slice(0, 10);
+
+  if(!r.length){
+    dd.innerHTML='<div class="dd-item" style="color:var(--gray-400);cursor:default">Nenhum encontrado</div>';
+    dd.classList.add('open'); return;
+  }
+
+  dd.innerHTML = r.map(f => {
+    const ini = f.nome.split(' ').slice(0,2).map(w=>w[0]).join('');
+    return `<div class="dd-item" onclick="selFunc(${f.id})">
+      <div class="dd-av">${ini}</div>
+      <div>
+        <div class="dd-nome">${f.nome}</div>
+        <div class="dd-sub">📍 ${f.obra}</div>
+      </div>
+    </div>`;
+  }).join('');
+  dd.classList.add('open');
+}
+
+function selFunc(id){
+  funcSel = funcionarios.find(f => String(f.id) === String(id));
+  if(!funcSel) return;
+  document.getElementById('busca-func').value = '';
+  document.getElementById('dd-func').classList.remove('open');
+
+  const ini = funcSel.nome.split(' ').slice(0,2).map(w=>w[0]).join('');
+  document.getElementById('func-badge').style.display = 'block';
+  document.getElementById('fb-av').textContent   = ini;
+  document.getElementById('fb-nome').textContent = funcSel.nome;
+  document.getElementById('fb-sub').textContent  = `📍 ${funcSel.obra}`;
+
+  // Pré-seleciona obra
+  const chip = document.querySelector(`.obra-chip[data-obra="${funcSel.obra}"]`);
+  if(chip) selObra(chip);
+
+  // Carrega pontos do dia deste funcionário
+  carregarPontosHoje();
+  document.getElementById('card-progresso').style.display = 'block';
+}
+
+function limparFunc(){
+  funcSel = null; pontosHoje = {};
+  document.getElementById('func-badge').style.display = 'none';
+  document.getElementById('busca-func').value = '';
+  document.getElementById('card-progresso').style.display = 'none';
+  document.querySelectorAll('.obra-chip').forEach(c=>c.classList.remove('selected'));
+  obraSel = null; tipoSel = null;
+  atualizarBotoesTipo();
+}
+
+// ── PONTOS DO DIA ──
+function carregarPontosHoje(){
+  if(!funcSel) return;
+  const key = PONTOS_KEY + '_' + funcSel.cpf + '_' + hoje();
+  const saved = localStorage.getItem(key);
+  pontosHoje = saved ? JSON.parse(saved) : {};
+  atualizarProgresso();
+  atualizarBotoesTipo();
+}
+
+function salvarPontoLocal(tipo, hora){
+  if(!funcSel) return;
+  const key = PONTOS_KEY + '_' + funcSel.cpf + '_' + hoje();
+  pontosHoje[tipo] = hora;
+  localStorage.setItem(key, JSON.stringify(pontosHoje));
+}
+
+// ── PROGRESSO VISUAL ──
+function atualizarProgresso(){
+  const seq = ['entrada','almoco','volta','saida'];
+  const emojis = ['🟢','🍽️','🔄','🔴'];
+
+  seq.forEach((tipo, i) => {
+    const el    = document.getElementById('prog-'+i);
+    const hora  = document.getElementById('phora-'+i);
+    const line  = document.getElementById('pline-'+i);
+
+    if(pontosHoje[tipo]){
+      el.className = 'prog-icon feito';
+      el.textContent = '✅';
+      hora.textContent = pontosHoje[tipo];
+      if(line) line.classList.add('feito');
+    } else {
+      // Próximo a fazer?
+      const anterior = i === 0 || pontosHoje[seq[i-1]];
+      el.className = 'prog-icon' + (anterior ? ' ativo' : '');
+      el.textContent = emojis[i];
+      hora.textContent = '';
+      if(line) line.classList.remove('feito');
+    }
+  });
+}
+
+// ── BOTÕES TIPO ──
+function atualizarBotoesTipo(){
+  const seq = ['entrada','almoco','volta','saida'];
+  tipoSel = null;
+
+  seq.forEach((tipo, i) => {
+    const btn = document.querySelector(`.tipo-btn[data-tipo="${tipo}"]`);
+    const chk = document.getElementById('chk-'+tipo);
+    const hreg = document.getElementById('hreg-'+tipo);
+
+    if(!funcSel){
+      btn.className = `tipo-btn t-${tipo} bloqueado`;
+      chk.textContent = ''; hreg.textContent = ''; return;
+    }
+
+    if(pontosHoje[tipo]){
+      // Já feito
+      btn.className = `tipo-btn t-${tipo} feito`;
+      chk.textContent = '✅';
+      hreg.textContent = pontosHoje[tipo];
+    } else {
+      // Anterior feito ou é o primeiro?
+      const anteriorFeito = i === 0 || pontosHoje[seq[i-1]];
+      if(anteriorFeito){
+        btn.className = `tipo-btn t-${tipo} disponivel`;
+        chk.textContent = ''; hreg.textContent = '';
+      } else {
+        btn.className = `tipo-btn t-${tipo} bloqueado`;
+        chk.textContent = '🔒'; hreg.textContent = '';
+      }
+    }
+  });
+}
+
+function selTipo(el){
+  if(!funcSel){ toast('⚠️ Selecione seu nome primeiro','error'); return; }
+  const tipo = el.dataset.tipo;
+  if(el.classList.contains('bloqueado')) {
+    const seq = ['entrada','almoco','volta','saida'];
+    const i = seq.indexOf(tipo);
+    const faltando = seq[i-1];
+    toast(`⚠️ Registre ${faltando==='almoco'?'o Almoço':faltando==='volta'?'a Volta':'a Entrada'} primeiro`,'error');
+    return;
+  }
+  if(el.classList.contains('feito')){
+    toast('✅ Já registrado às ' + pontosHoje[tipo],'');
+    return;
+  }
+
+  // Seleciona
+  document.querySelectorAll('.tipo-btn').forEach(b => {
+    if(!b.classList.contains('feito') && !b.classList.contains('bloqueado'))
+      b.classList.remove('selected');
+  });
+  el.classList.add('selected');
+  tipoSel = tipo;
+}
+
+// ── OBRA ──
+function selObra(el){
+  document.querySelectorAll('.obra-chip').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected'); obraSel = el.dataset.obra;
+}
+
+// ── CÂMERA ──
+function abrirCam(){ document.getElementById('cam-input').click(); }
+function processarFoto(input){
+  if(!input.files||!input.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    fotoCapt = e.target.result;
+    document.getElementById('foto-prev').src = fotoCapt;
+    document.getElementById('foto-prev').style.display = 'block';
+    document.getElementById('foto-ph').style.display = 'none';
+    document.getElementById('foto-retake').style.display = 'block';
+    const n = new Date();
+    const ts = `${pad(n.getHours())}:${pad(n.getMinutes())} • ${pad(n.getDate())}/${pad(n.getMonth()+1)}/${n.getFullYear()}`;
+    const ov = document.getElementById('foto-ov');
+    ov.textContent = `📍 ZENO • ${obraSel||''} • ${ts}`;
+    ov.classList.add('visible');
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+// ── REGISTRAR PONTO ──
+async function registrarPonto(){
+  if(!funcSel)   { toast('⚠️ Selecione seu nome','error'); return; }
+  if(!obraSel)   { toast('⚠️ Selecione a obra','error'); return; }
+  if(!tipoSel)   { toast('⚠️ Selecione o tipo de registro','error'); return; }
+  if(!fotoCapt)  { toast('⚠️ Tire uma foto da obra','error'); return; }
+
+  const btn = document.getElementById('btn-registrar');
+  btn.innerHTML = '<div class="spinner"></div> Registrando...';
+  btn.disabled = true;
+
+  const n = new Date();
+  const hora = `${pad(n.getHours())}:${pad(n.getMinutes())}`;
+  const data = hoje();
+
+  // Manda para o servidor
+  const res = await api({
+    acao:   'registrarPonto',
+    nome:   funcSel.nome,
+    cpf:    funcSel.cpf,
+    obra:   obraSel,
+    tipo:   tipoSel,
+    diaria: funcSel.diaria || 0
+  });
+
+  btn.innerHTML = '✅ Registrar Ponto';
+  btn.disabled = false;
+
+  setStatus(res.ok);
+
+  // Salva localmente de qualquer forma
+  salvarPontoLocal(tipoSel, hora);
+  atualizarProgresso();
+  atualizarBotoesTipo();
+
+  // Mostra confirmação
+  mostrarConfirmacao(funcSel.nome, obraSel, tipoSel, hora, data);
+}
+
+function mostrarConfirmacao(nome, obra, tipo, hora, data){
+  const info = TIPOS_INFO[tipo];
+  document.getElementById('form-ponto').style.display = 'none';
+  const cc = document.getElementById('confirm-card');
+  cc.className = 'confirm-card ' + info.cor;
+  cc.style.display = 'block';
+  document.getElementById('cc-icon').textContent = info.emoji;
+  document.getElementById('cc-nome').textContent = nome;
+  document.getElementById('cc-info').textContent = `📍 ${obra} • ${data}`;
+  document.getElementById('cc-hora').textContent = hora;
+  document.getElementById('cc-tipo').textContent = `✅ ${info.label} REGISTRADA`;
+}
+
+function novoRegistro(){
+  document.getElementById('confirm-card').style.display = 'none';
+  document.getElementById('form-ponto').style.display = 'block';
+  // Reseta foto e tipo mas mantém funcionário e obra
+  document.getElementById('foto-prev').style.display = 'none';
+  document.getElementById('foto-prev').src = '';
+  document.getElementById('foto-ph').style.display = 'flex';
+  document.getElementById('foto-retake').style.display = 'none';
+  document.getElementById('foto-ov').classList.remove('visible');
+  document.getElementById('cam-input').value = '';
+  fotoCapt = null; tipoSel = null;
+  atualizarBotoesTipo();
+}
+
+function toast(msg, tipo=''){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast ${tipo} show`;
+  setTimeout(()=>el.classList.remove('show'), 3200);
+}
+</script>
+</body>
+</html>
